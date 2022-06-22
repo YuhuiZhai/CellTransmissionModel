@@ -13,11 +13,19 @@ class Cell:
 
     def transferNext(self):
         if self.next_cell == None or self.blocked: return 0
-        elif self.status == 0: y = min(self.n, self.Q, self.next_cell.N-self.next_cell.n)
+        elif self.status == 0: 
+            y = min(self.n, self.Q, self.next_cell.N-self.next_cell.n)
+            self.y_out += y
+            self.next_cell.y_in += y
         elif self.status == 1: 
             y = self.mergeflow()
-        self.y_out += y
-        self.next_cell.y_in += y
+            self.y_out += y
+            self.next_cell.y_in += y
+        elif self.status == 2:
+            y = self.divergeflow()
+            self.y_out += y
+            for c in self.next_cell:
+                c.y_in += y        
         return y 
     
     def update(self):
@@ -48,4 +56,9 @@ class Cell:
         else: ybk = Sbk
         return ybk
 
+    def divergeflow(self):
+        Sbk = min(self.Q, self.n)
+        weights = sum([c.weight for c in self.next_cell])
+        ybk = min(Sbk, *[min(c.Q, c.N-c.n)/(c.weight/weights) for c in self.next_cell])
+        return ybk
 

@@ -38,7 +38,17 @@ class Network:
         Bk.status, Ck.status = 1, 1
         Bk.merged_cell = Ck
         Ck.merged_cell = Bk
-
+    
+    def divergeRoad(self, road1:Road, roads:set):
+        road1.exit.blocked = True
+        cells = set()
+        for r in roads:
+            r.gate.blocked = True
+            cells.add(r.cells[0])
+        Bk = road1.cells[road1.cell_num-1]
+        Bk.linkNext(cells)
+        Bk.status = 2
+    
     def move(self):
         for r in self.roads.values():
             r.move()

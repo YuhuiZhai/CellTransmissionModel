@@ -5,7 +5,7 @@ import heapq as hq
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from matplotlib.animation import PillowWriter
-
+import xlsxwriter as xw
 class Road:
     def __init__(self, id, length, dt, v, w, qinit, qmax, kj, weight=0):
         self.id = id
@@ -83,13 +83,34 @@ class Road:
         return 
 
     def print(self):
-        # for r in self.record:
-        #     frmt = "{:>5}"*len(r)
-        #     print(frmt.format(*r))
-        for r in self.flow_record:
+        for r in self.record:
             frmt = "{:>5}"*len(r)
             print(frmt.format(*r))
+        # for r in self.flow_record:
+        #     frmt = "{:>5}"*len(r)
+        #     print(frmt.format(*r))
         return 
+
+    def export(self, name=""):
+        if len(self.record) == 0: 
+            print("simulation failed")
+            return
+        if name == "": workbook = xw.Workbook("simulation.xlsx")
+        else: workbook = xw.Workbook(name+".xlsx")
+        worksheet = workbook.add_worksheet()
+        worksheet.write(0,0, "x \ t")
+        for i in range(len(self.record)):
+            worksheet.write(0, i+1, i*self.dt)
+            for j in range(self.cell_num):
+                worksheet.write(self.cell_num-1-j+1, i+1, self.record[i][j])
+        for j in range(self.cell_num):
+            worksheet.write(self.cell_num-1-j+1, 0, j*self.cell_length)
+        workbook.close()
+        if name == "": print("file has been saved as simulation.xlsx")
+        else: print("file has been saved as {}.xlsx".format(name))
+        return 
+       
+    
     
     def printinfo(self):
         print("Qmax: {}, cell capaity: {}".format(self.Qmax, self.cell_capacity))
